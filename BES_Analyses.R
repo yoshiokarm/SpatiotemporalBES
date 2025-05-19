@@ -15,7 +15,7 @@
 
 # > 1.1: Clear everything ----- 
 # clear workspace
-# rm(list=ls())
+rm(list=ls())
 # clear console
 cat("\014")
 
@@ -114,14 +114,7 @@ dfm_QO1821 =
          pH_thresh12 = ifelse(pH_mean12 > 7.75, 0, 1),
          pH_thresh16 = ifelse(pH_mean16 > 7.75, 0, 1),
          pH_thresh20 = ifelse(pH_mean20 > 7.75, 0, 1),
-         pH_thresh24 = ifelse(pH_mean24 > 7.75, 0, 1),
-         # O2 threshold is 3.21 for expected negative effects
-         O2_thresh4 = ifelse(O2_mean4 > 3.21, 0, 1),
-         O2_thresh8 = ifelse(O2_mean8 > 3.21, 0, 1),
-         O2_thresh12 = ifelse(O2_mean12 > 3.21, 0, 1),
-         O2_thresh16 = ifelse(O2_mean16 > 3.21, 0, 1),
-         O2_thresh20 = ifelse(O2_mean20 > 3.21, 0, 1),
-         O2_thresh24 = ifelse(O2_mean24 > 3.21, 0, 1))
+         pH_thresh24 = ifelse(pH_mean24 > 7.75, 0, 1))
 
 df_envdat =
   df_envdat |>
@@ -130,13 +123,7 @@ df_envdat =
          pH_thresh12 = ifelse(pH_mean12 > 7.75, 0, 1),
          pH_thresh16 = ifelse(pH_mean16 > 7.75, 0, 1),
          pH_thresh20 = ifelse(pH_mean20 > 7.75, 0, 1),
-         pH_thresh24 = ifelse(pH_mean24 > 7.75, 0, 1),
-         O2_thresh4 = ifelse(O2_mean4 > 3.21, 0, 1),
-         O2_thresh8 = ifelse(O2_mean8 > 3.21, 0, 1),
-         O2_thresh12 = ifelse(O2_mean12 > 3.21, 0, 1),
-         O2_thresh16 = ifelse(O2_mean16 > 3.21, 0, 1),
-         O2_thresh20 = ifelse(O2_mean20 > 3.21, 0, 1),
-         O2_thresh24 = ifelse(O2_mean24 > 3.21, 0, 1))
+         pH_thresh24 = ifelse(pH_mean24 > 7.75, 0, 1))
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
 # 2. Mesh construction ---------------------------------------------------------
@@ -150,7 +137,7 @@ obj_mesh_bounds =
 
 # plug in estimated range to construct mesh
 # val_est_range = 100 # For testing
-val_est_range = 36.50 # estimated range for final run
+val_est_range = 34.52 # estimated range for final run
 
 # construct mesh
 obj_mesh =
@@ -225,7 +212,7 @@ df_mesh_segments =
 #                    text_col = "grey25",
 #                    text_cex = 0.5) +
 #   theme(text = element_text(family = "serif"))
-
+# 
 # ggsave("BES_plot_mesh.png",
 #        device = "png",
 #        dpi = 300,
@@ -674,217 +661,6 @@ var_pH_selected_window
 
 # pH 8 weeks preceding
 
-# > 3.3: O2 -----
-# > > 3.3.1: 4 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O24.rds"))) {
-  mod_O24 = read_rds(here("BES_mod_O24.rds"))
-} else {
-  mod_O24 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh4,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O24, here("BES_mod_O24.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O24_sanity = sanity(mod_O24)
-df_mod_cAIC_O2 = data.frame(mod = "O2_thresh4",
-                            condAIC = cAIC(mod_O24))
-
-# remove model to save space
-rm(mod_O24)
-
-# > > 3.3.2: 8 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O28.rds"))) {
-  mod_O28 = read_rds(here("BES_mod_O28.rds"))
-} else {
-  mod_O28 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh8,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O28, here("BES_mod_O28.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O28_sanity = sanity(mod_O28)
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  add_row(mod = "O2_thresh8",
-          condAIC = cAIC(mod_O28))
-
-# remove model to save space
-rm(mod_O28)
-
-# > > 3.3.3: 12 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O212.rds"))) {
-  mod_O212 = read_rds(here("BES_mod_O212.rds"))
-} else {
-  mod_O212 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh12,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O212, here("BES_mod_O212.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O212_sanity = sanity(mod_O212)
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  add_row(mod = "O2_thresh12",
-          condAIC = cAIC(mod_O212))
-
-# remove model to save space
-rm(mod_O212)
-
-# > > 3.3.4: 16 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O216.rds"))) {
-  mod_O216 = read_rds(here("BES_mod_O216.rds"))
-} else {
-  mod_O216 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh16,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O216, here("BES_mod_O216.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O216_sanity = sanity(mod_O216)
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  add_row(mod = "O2_thresh16",
-          condAIC = cAIC(mod_O216))
-
-# remove model to save space
-rm(mod_O216)
-
-# > > 3.3.5: 20 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O220.rds"))) {
-  mod_O220 = read_rds(here("BES_mod_O220.rds"))
-} else {
-  mod_O220 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh20,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O220, here("BES_mod_O220.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O220_sanity = sanity(mod_O220)
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  add_row(mod = "O2_thresh20",
-          condAIC = cAIC(mod_O220))
-
-# remove model to save space
-rm(mod_O220)
-
-# > > 3.3.6: 24 weeks prior -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_O224.rds"))) {
-  mod_O224 = read_rds(here("BES_mod_O224.rds"))
-} else {
-  mod_O224 =
-    sdmTMB(BES ~
-             CPUE_std +
-             CPUE_ind_std +
-             size_std +
-             shell2 +
-             O2_thresh24,
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # save model
-  write_rds(mod_O224, here("BES_mod_O224.rds"))
-  
-}
-
-# Record Sanity and start building out cAIC table
-mod_O224_sanity = sanity(mod_O224)
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  add_row(mod = "O2_thresh24",
-          condAIC = cAIC(mod_O224))
-
-# remove model to save space
-rm(mod_O224)
-
-# > > 3.3.7: Compare O2 models -----
-df_mod_cAIC_O2 = 
-  df_mod_cAIC_O2 |>
-  mutate(dcondAIC = condAIC - min(condAIC))
-
-write_csv(df_mod_cAIC_O2, here("df_mod_cAIC_O2.csv"))
-
-var_O2_selected_window = 
-  df_mod_cAIC_O2[which.min(df_mod_cAIC_O2$dcondAIC),]$mod
-
-var_O2_selected_window
-
-# O2 16 weeks preceding
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
 # 4: Environmental Variable Selection ------------------------------------------
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
@@ -893,8 +669,7 @@ var_O2_selected_window
 # No need to rerun models of single environmental variables
 df_mod_cAIC_env = 
   rbind(df_mod_cAIC_temp[df_mod_cAIC_temp$dcondAIC == 0,],
-        df_mod_cAIC_pH[df_mod_cAIC_pH$dcondAIC == 0,],
-        df_mod_cAIC_O2[df_mod_cAIC_O2$dcondAIC == 0,])
+        df_mod_cAIC_pH[df_mod_cAIC_pH$dcondAIC == 0,])
 
 # set to NA, as these are not necessarily the best models for this set
 df_mod_cAIC_env$dcondAIC = NA 
@@ -932,8 +707,7 @@ df_mod_cAIC_env =
 # Remove model for space
 rm(mod_demo) 
 
-# > 4.3: Pairwise Models -----
-# > > 4.3.1: Temperature and pH -----
+# > 4.3: Combined Model -----
 # Avoid refitting model if it already exists
 if(file.exists(here("BES_mod_temp_pH.rds"))) {
   mod_temp_pH = read_rds(here("BES_mod_temp_pH.rds"))
@@ -965,104 +739,7 @@ df_mod_cAIC_env =
 # Remove model to save space
 rm(mod_temp_pH) 
 
-# > > 4.3.2: Temperature and O2 -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_temp_O2.rds"))) {
-  mod_temp_O2 = read_rds(here("BES_mod_temp_O2.rds"))
-} else {
-  mod_temp_O2 =
-    sdmTMB(formula = 
-             as.formula(paste("BES ~ CPUE_std + CPUE_ind_std + size_std + shell2",
-                              var_temp_selected_window,
-                              var_O2_selected_window,
-                              sep = " + ")),
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # Save model
-  write_rds(mod_temp_O2, here("BES_mod_temp_O2.rds"))
-  
-}
-
-# Update cAIC table
-mod_temp_O2_sanity = sanity(mod_temp_O2)
-df_mod_cAIC_env = 
-  df_mod_cAIC_env |>
-  add_row(mod = "temp_O2",
-          condAIC = cAIC(mod_temp_O2))
-
-# Remove model to save space
-rm(mod_temp_O2) 
-
-# > > 4.3.3: pH and O2 -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_pH_O2.rds"))) {
-  mod_pH_O2 = read_rds(here("BES_mod_pH_O2.rds"))
-} else {
-  mod_pH_O2 =
-    sdmTMB(formula = 
-             as.formula(paste("BES ~ CPUE_std + CPUE_ind_std + size_std + shell2",
-                              var_pH_selected_window,
-                              var_O2_selected_window,
-                              sep = " + ")),
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # Save model
-  write_rds(mod_pH_O2, here("BES_mod_pH_O2.rds"))
-  
-}
-
-# Update cAIC table
-mod_pH_O2_sanity = sanity(mod_pH_O2)
-df_mod_cAIC_env = 
-  df_mod_cAIC_env |>
-  add_row(mod = "pH_O2",
-          condAIC = cAIC(mod_pH_O2))
-
-# Remove model to save space
-rm(mod_pH_O2) 
-
-# > 4.4: Full Model -----
-# Avoid refitting model if it already exists
-if(file.exists(here("BES_mod_full.rds"))) {
-  mod_full = read_rds(here("BES_mod_full.rds"))
-} else {
-  mod_full =
-    sdmTMB(formula = 
-             as.formula(paste("BES ~ CPUE_std + CPUE_ind_std + size_std + shell2",
-                              var_temp_selected_window,
-                              var_pH_selected_window,
-                              var_O2_selected_window,
-                              sep = " + ")),
-           data = dfm_QO1821,
-           mesh = obj_mesh,
-           family = binomial(link = "logit"),
-           time = "fishery_ind",
-           spatiotemporal = "iid")
-  
-  # Save model
-  write_rds(mod_full, here("BES_mod_full.rds"))
-  
-}
-
-# Update cAIC table
-mod_full_sanity = sanity(mod_full)
-df_mod_cAIC_env = 
-  df_mod_cAIC_env |>
-  add_row(mod = "full",
-          condAIC = cAIC(mod_full))
-
-# Remove model to save space
-rm(mod_full) 
-
-# > 4.5: Compare Environmental Variable models -----
+# > 4.4: Compare Environmental Variable models -----
 df_mod_cAIC_env = 
   df_mod_cAIC_env |>
   mutate(dcondAIC = condAIC - min(condAIC))
@@ -1076,12 +753,11 @@ var_env_selected
 
 # full model selected
 
-# > 4.6: Combine all cAIC tables -----
+# > 4.5: Combine all cAIC tables -----
 df_mod_cAIC_all = 
   rbind(
     df_mod_cAIC_temp,
     df_mod_cAIC_pH,
-    df_mod_cAIC_O2,
     df_mod_cAIC_env
   ) |>
   mutate(dcondAIC = condAIC - min(condAIC)) |>
@@ -1102,7 +778,7 @@ write.csv(df_mod_cAIC_all, here("df_mod_cAIC_all.csv"))
 
 # (Un)comment below to toggle declaring the selected model as the full model
 # (This is if model (re)fitting and comparison is skipped)
-var_env_selected = "full"
+var_env_selected = "temp_pH"
 
 # Load final model
 mod_fin = read_rds(here(paste0("BES_mod_",
@@ -1163,8 +839,7 @@ df_mod_fin_fixed$term = factor(df_mod_fin_fixed$term,
                                           "shell2old",
                                           "shell2v.old",
                                           "temp_mean4_std",
-                                          "pH_thresh8",
-                                          "O2_thresh16"))
+                                          "pH_thresh8"))
 
 # exponentiate estimates for odds ratios
 df_mod_fin_fixed = 
@@ -1188,8 +863,7 @@ vec_BES_colors =
     "shell2old" = "orange3",
     "shell2v.old" = "orange4",
     "temp_mean4_std" = "firebrick",
-    "pH_thresh8" = "magenta3",
-    "O2_thresh16" = "cyan4"
+    "pH_thresh8" = "magenta3"
   )
 
 # create lookup for labeling terms
@@ -1201,8 +875,7 @@ df_term_labs =
                       "shell2old",
                       "shell2v.old",
                       "temp_mean4_std",
-                      "pH_thresh8",
-                      "O2_thresh16"),
+                      "pH_thresh8"),
              term_lab = c("intercept",
                           "fishery CPUE, std.",
                           "local CPUE, std.",
@@ -1210,8 +883,7 @@ df_term_labs =
                           "shell: old",
                           "shell: very old",
                           "temp., std.",
-                          "pH, thresh.",
-                          "O2, thresh."))
+                          "pH, thresh."))
 
 # match look up
 df_mod_fin_fixed = 
@@ -1230,8 +902,7 @@ df_mod_fin_fixed$term_lab =
                     "shell: old",
                     "shell: very old",
                     "temp., std.",
-                    "pH, thresh.",
-                    "O2, thresh."))
+                    "pH, thresh."))
 
 # graph odds ratios
 ggplot(data = df_mod_fin_fixed) +
@@ -1317,7 +988,7 @@ plot_temp =
                    xend = bin,
                    y = BES * 0.08,
                    yend = prop * 0.08),
-               linewidth = 2,
+               linewidth = 3,
                alpha = 0.2,
                color = vec_BES_colors["temp_mean4_std"],
                data = df_N_temp) +
@@ -1397,66 +1068,7 @@ plot_pH =
   theme(text = element_text(family = "serif"))
 plot_pH
 
-# > > > 5.3.2.3: O2 effect -----
-df_pred_O2 = 
-  predict(mod_fin,
-          newdata = data.frame(gridXCkm = rep(0, 2),
-                               gridYCkm = rep(0, 2),
-                               fishery_ind = 1,
-                               temp_mean4_std = rep(0, 2),
-                               pH_thresh8 = rep(0, 2),
-                               O2_thresh16 = c(0, 1),
-                               CPUE_std = rep(0, 2),
-                               CPUE_ind_std = rep(0, 2),
-                               size_std = rep(0, 2),
-                               shell2 = "old"),
-          re_form = ~ 0,
-          se_fit = TRUE)
-
-df_pred_O2 = 
-  dfm_QO1821 |>
-  group_by(O2_thresh16) |>
-  summarize(N = length(O2_thresh16)) |>
-  right_join(df_pred_O2)
-
-df_pred_O2$O2 = factor(c("normoxic",
-                         "hypoxic"),
-                       levels = c("normoxic",
-                                  "hypoxic"))
-
-plot_O2 = 
-  ggplot() +
-  geom_errorbar(aes(x = O2,
-                    ymax = plogis(est + 1.96 * est_se),
-                    ymin = plogis(est - 1.96 * est_se)),
-                width = 0.0,
-                linewidth = 1,
-                color = vec_BES_colors["O2_thresh16"],
-                data = df_pred_O2) +
-  geom_point(aes(x = O2,
-                 y = plogis(est)),
-             size = 3,
-             alpha = 0.5,
-             color = vec_BES_colors["O2_thresh16"],
-             data = df_pred_O2) +
-  geom_text(aes(x = O2,
-                y = plogis(est + 1.96 * est_se) + 0.005,
-                label = format(N, big.mark=",")),
-            color = vec_BES_colors["O2_thresh16"],
-            size = unit(3, "pt"),
-            family = "serif",
-            data = df_pred_O2)+
-  # geom_hline(yintercept = 0.08,
-  #            linetype = 2,
-  #            color = "grey50") +
-  coord_cartesian(ylim = c(0, 0.08)) +
-  labs(x = "dissolved oxygen",
-       y = "BES conditional\nprobability") +
-  theme_bw() +
-  theme(text = element_text(family = "serif"))
-plot_O2
-
-# > > > 5.3.2.4: Size effect -----
+# > > > 5.3.2.3: Size effect -----
 
 # Predict/plot all the way to max size?
 # val_size_max = max(dfm_QO1821$size_std) # Yes
@@ -1543,7 +1155,7 @@ plot_size =
   theme(text = element_text(family = "serif"))
 plot_size
 
-# > > > 5.3.2.5: Local CPUE effect -----
+# > > > 5.3.2.4: Local CPUE effect -----
 df_pred_CPUE_ind = 
   predict(mod_fin,
           newdata = data.frame(gridXCkm = rep(0, 20),
@@ -1626,7 +1238,7 @@ plot_CPUE_ind =
   theme(text = element_text(family = "serif"))
 plot_CPUE_ind
 
-# > > > 5.3.2.6: Shell Condition effect -----
+# > > > 5.3.2.5: Shell Condition effect -----
 df_pred_shell = 
   predict(mod_fin,
           newdata = data.frame(gridXCkm = rep(0, 3),
@@ -1692,11 +1304,11 @@ plot_shell =
   theme(text = element_text(family = "serif"))
 plot_shell
 
-# > > > 5.3.2.7: Combine Figures -----
+# > > > 5.3.2.6: Combine Figures -----
 # Environmental
-(plot_temp | plot_pH | plot_O2)  +
+(plot_temp | plot_pH)  +
   plot_layout(axes = "collect_y",
-              widths = c(1, 1, 1)) +
+              widths = c(1, 1)) +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(family = "serif"))
 
@@ -1722,11 +1334,8 @@ ggsave("BES_plot_cond_demo.png",
        units = "in")
 
 # All
-(plot_size + plot_shell + plot_CPUE_ind +
-    plot_temp + plot_pH + plot_O2) +
-  plot_layout(nrow = 2,
-              axes = "collect_y",
-              widths = c(1, 1, 1)) +
+(plot_size + plot_shell + plot_CPUE_ind + plot_layout(axes = "collect_y")) /
+  (plot_temp + plot_pH + plot_layout(axes = "collect_y")) +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(family = "serif"),
         plot.tag.location = "panel",
@@ -1739,7 +1348,7 @@ ggsave("BES_plot_cond_all.png",
        width = 6,
        units = "in")
 
-# > > > 5.3.2.8: Generate effect text -----
+# > > > 5.3.2.7: Generate effect text -----
 # Size
 # Minimum legal vs market preferred
 # 3.1 in = ~78 mm
@@ -1828,25 +1437,6 @@ df_pred_misc =
 # Normal pH to acidic
 (df_pred_misc$prob[2] / df_pred_misc$prob[1] - 1) * 100 
 
-# O2:
-df_pred_misc = 
-  predict(mod_fin,
-          newdata = data.frame(gridXCkm = 0,
-                               gridYCkm = 0,
-                               fishery_ind = 1,
-                               temp_mean4_std = 0,
-                               pH_thresh8 = 0,
-                               O2_thresh16 = c(0, 1),
-                               CPUE_std = 0,
-                               CPUE_ind_std = 0,
-                               size_std = (101 - 98.74568) / # standardize
-                                 10.67769,
-                               shell2 = "old"),
-          re_form = ~ 0) |>
-  mutate(prob = plogis(est))
-# Normal DO to hypoxic
-(df_pred_misc$prob[2] / df_pred_misc$prob[1] - 1) * 100 
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
 # 6: Maps ----------------------------------------------------------------------
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
@@ -1889,16 +1479,17 @@ length(dfm_QO1821_prev_gridind[dfm_QO1821_prev_gridind$prev > 0,]$N) /
   length(dfm_QO1821_prev_gridind$N)
 
 # Not a map, but helpful...
-ggplot() +
-  geom_histogram(aes(x = prev),
+plot_hist_prev = 
+  ggplot() +
+  geom_histogram(aes(x = prev * 100),
                  fill = "firebrick4",
-                 binwidth = 0.025,
+                 binwidth = 2.5,
                  data = dfm_QO1821_prev_gridind) +
-  labs(x = "BES Prevalence",
+  labs(x = "BES Prevalence (%)",
        y = "# grid cells") +
   scale_y_continuous(expand = expansion(mult = 0,
                                         add = c(1, 1))) +
-  coord_cartesian(xlim = c(0, 0.4)) +
+  coord_cartesian(xlim = c(0, 40)) +
   theme_classic() +
   theme(text = element_text(family = "serif"),
         strip.text = element_text(size = unit (8, "pt")),
@@ -1908,6 +1499,8 @@ ggplot() +
                                    vjust = 0.5)) +
   facet_grid(. ~ fishery, ,
              labeller = labeller(fishery = fishery_labels))
+
+plot_hist_prev
 
 # export graph
 # ggsave("BES_plot_hist.png",
@@ -1924,7 +1517,6 @@ length(dfm_QO1821_prev[dfm_QO1821_prev$plot,]$statarea) /
   length(dfm_QO1821_prev$statarea)
 
 # Plot with gridind - this does not get released for confidentiality
-# ... also not a particularly pretty figure...
 ggplot() +
   geom_point(aes(x = gridX3571,
                  y = gridY3571,
@@ -2012,6 +1604,7 @@ plot_map_prev =
   #                   max(df_mesh_points$gridY3571))) +
   theme(text = element_text(family = "serif"),
         axis.text.x = element_blank(),
+        # axis.text.x = element_text(size = unit(6, "pt")),
         axis.text.y = element_text(size = unit(6, "pt")),
         axis.title = element_blank(),
         legend.title = element_text(size = unit(8, "pt")),
@@ -2024,6 +1617,18 @@ plot_map_prev =
              labeller = labeller(fishery = fishery_labels))
 
 plot_map_prev
+
+# plot_map_prev + plot_hist_prev +
+#   plot_layout(nrow = 2)
+# 
+# # export graph
+# ggsave("BES_plot_map_hist.png",
+#        device = "png",
+#        dpi = 600,
+#        height = 3.5,
+#        width = 6.5,
+#        units = "in")
+
 
 # > 6.2: Temp Map -----
 plot_map_temp = basemap(limits = c(177, -162, 53, 63),
@@ -2074,6 +1679,10 @@ plot_map_temp = basemap(limits = c(177, -162, 53, 63),
 
 plot_map_temp
 
+ggplot(data = df_envdat) +
+  geom_histogram(aes(x = temp_mean4)) +
+  facet_grid(fishery ~ .)
+  
 # > 6.3: pH_thresh Map -----
 plot_map_pH = basemap(limits = c(177, -162, 53, 63),
                       lon.interval = 5,
@@ -2110,8 +1719,8 @@ plot_map_pH = basemap(limits = c(177, -162, 53, 63),
   theme(text = element_text(family = "serif"),
         strip.text.x = element_blank(),
         strip.background.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_text(size = unit(6, "pt")),
+        # axis.text.x = element_blank(),
+        axis.text = element_text(size = unit(6, "pt")),
         axis.title = element_blank(),
         legend.title = element_text(size = unit(8, "pt")),
         legend.key.size = unit(3,"pt"),
@@ -2121,64 +1730,17 @@ plot_map_pH = basemap(limits = c(177, -162, 53, 63),
 
 plot_map_pH
 
-# > 6.4: O2_mean4_thresh Map -----
-plot_map_O2 = basemap(limits = c(177, -162, 53, 63),
-                      lon.interval = 5,
-                      lat.interval = 2.5,
-                      rotate = TRUE,
-                      bathymetry = FALSE,
-                      # bathy.style = "poly_blues",
-                      # bathy.alpha = 0.5,
-                      legends = FALSE,
-                      land.col = "black") +
-  geom_spatial_point(aes(x = gridX3571,
-                         y = gridY3571,
-                         color = factor(O2_thresh16)),
-                     shape = 16,
-                     size = 0.1,
-                     crs = 3571,
-                     data = df_envdat) +
-  geom_spatial_text(aes(x = 177,
-                        y = 61.5,
-                        label = "D"),
-                    color = "black",
-                    fontface = "bold",
-                    family = "serif",
-                    crs = 4326,
-                    data = data.frame(fishery = "QO18")) +
-  scale_color_manual(values = c("cyan", "cyan4"),
-                     labels = c("normoxic", "hypoxic")) +
-  labs(color = "Dissolved\nOxygen") +
-  # coord_sf(crs = st_crs(3571),
-  #          xlim = c(min(df_mesh_points$gridX3571),
-  #                   max(df_mesh_points$gridX3571)),
-  #          ylim = c(min(df_mesh_points$gridY3571),
-  #                   max(df_mesh_points$gridY3571))) +
-  theme(text = element_text(family = "serif"),
-        strip.text.x = element_blank(),
-        strip.background.x = element_blank(),
-        axis.text.x = element_text(size = unit(6, "pt")),
-        axis.text.y = element_text(size = unit(6, "pt")),
-        axis.title = element_blank(),
-        legend.title = element_text(size = unit(8, "pt")),
-        legend.key.size = unit(3,"pt"),
-        legend.text = element_text(size = unit(6, "pt"))) +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  facet_grid(. ~ fishery) 
-
-plot_map_O2
-
 # Combine maps
-plot_map_prev + plot_map_temp + plot_map_pH + plot_map_O2 +
+plot_map_prev + plot_map_temp + plot_map_pH +
   plot_layout(ncol = 1)
 
 # export graph
-# ggsave("BES_plot_maps.png",
-#        device = "png",
-#        dpi = 300,
-#        height = 5.5,
-#        width = 6.5,
-#        units = "in")
+ggsave("BES_plot_maps.png",
+       device = "png",
+       dpi = 300,
+       height = 4.5,
+       width = 6.5,
+       units = "in")
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>####
 # 7: Miscellaneous -------------------------------------------------------------
